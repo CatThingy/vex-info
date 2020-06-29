@@ -225,6 +225,7 @@ async function formatEvent(eventData) {
     let embed = {
         title: eventData.name,
         description: eventData.season,
+        url: `https://robotevents.com/${eventData.sku}.html`,
         fields: []
     }
 
@@ -322,7 +323,7 @@ async function getBetween(from, to, events, region, descending = true) {
     for (const event of valid_events) {
         embed.fields.push({
             name: event.name,
-            value: `SKU: ${event.sku}\nDate: ${new Date(event.start).toUTCString().substring(5, 16)}`
+            value: `[${event.sku}](https://robotevents.com/${event.sku})\nDate: ${new Date(event.start).toUTCString().substring(5, 16)}`
         });
     }
     return embed;
