@@ -2,7 +2,7 @@
     "token":"YOUR.TOKEN.HERE",
     "default_settings": {
         "prefix": "v!",
-        "configurable_roles": ["Administrator"],
-        "default_region": ""
+        "default_region": "",
+        "default_timespan": 2592000000
     }
 }

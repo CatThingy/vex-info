@@ -137,11 +137,62 @@ client.on("message", message => {
             else {
                 url += "&country=" + region;
             }
+
+            let endDate = Date.now() + serverSettings.default_timespan;
+            if (args[1]) {
+                let duration = parseTime(args[1]);
+                if (duration) {
+                    endDate = Date.now() + parseTime(args[1]);
+                }
+            }
+
             fetch(url)
                 .then(res => res.json())
-                .then(data => findUpcoming(data.result, region))
+                .then(data => getBetween(Date.now(), endDate, data.result, region))
                 .then(output => message.channel.send({ embed: output }))
-                .catch(e => { message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}`) });
+                .catch(e => { message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}.`) });
+        }
+
+        // Get recent events in the region
+        if (command == "recent") {
+
+            // Parse region abbreviations, as well as allowing for a default region.
+            let region = serverSettings.default_region;
+            if (args[0]) {
+                if (args[0].length <= 3) {
+                    region = deabbreviation_dict[args[0]];
+                }
+                else {
+                    region = args[0];
+                }
+            }
+
+            if (region == "") {
+                message.channel.send("Please specify a region e.g: Alberta, NY, texas.");
+                return;
+            }
+
+            let url = "https://api.vexdb.io/v1/get_events?season=tower takeover";
+            if (regions.includes(region.toLowerCase())) {
+                url += "&region=" + region;
+            }
+            else {
+                url += "&country=" + region;
+            }
+
+            let startDate = Date.now() - serverSettings.default_timespan;
+            if (args[1]) {
+                let duration = parseTime(args[1]);
+                if (duration) {
+                    startDate = Date.now() - parseTime(args[1]);
+                }
+            }
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => getBetween(startDate, Date.now(), data.result, region, false))
+                .then(output => message.channel.send({ embed: output }))
+                .catch(e => { message.channel.send(`No recent events could be found in ${toTitleCase(region)}.`); console.log(e) });
         }
     }
 });
@@ -211,26 +262,45 @@ async function formatEvent(eventData) {
     return embed;
 }
 
-async function findUpcoming(events, region) {
-    // Look 1 month in advance
-    let latestDate = new Date().setUTCHours(0, 0, 0, 0) + 2592e6
-    let upcoming = [];
+async function getBetween(from, to, events, region, descending = true) {
+
+    let valid_events = [];
     for (const event of events) {
-        if (Date.parse(event.end) < latestDate) {
-            upcoming.push(event);
+        if (Date.parse(event.end) < to && Date.parse(event.end) > from) {
+            valid_events.push(event);
         }
+        console.log(Date.parse(event.end), from);
+    }
+    // Sort by date, ascending so it displays descending down the page
+    if (descending) {
+        valid_events = valid_events.sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
+    }
+    else {
+        valid_events = valid_events.sort((a, b) => Date.parse(b.start) - Date.parse(a.start));
     }
 
-    // Sort by date, ascending so it displays descending down the page
-    upcoming = upcoming.sort((a,b) => Date.parse(a.start) - Date.parse(b.start));
-
     let embed = {
-        title: "Upcoming events in " + toTitleCase(region),
-        description: "Future events up to " + new Date(latestDate).toUTCString().substring(0, 16),
         fields: []
     }
 
-    for (const event of upcoming) {
+    console.log(from, to);
+
+    if (Math.floor(from / 864e5) < Math.floor(Date.now() / 864e5)) {
+        embed.title = "Recent events in " + toTitleCase(region);
+        embed.description = "Past events since " + new Date(from).toUTCString().substring(0, 16);
+    }
+    else {
+        embed.title = "Upcoming events in " + toTitleCase(region);
+        embed.description = "Future events up to " + new Date(to).toUTCString().substring(0, 16);
+    }
+
+    console.log(valid_events);
+
+    if (valid_events.length == 0) {
+        return Promise.reject();
+    }
+
+    for (const event of valid_events) {
         embed.fields.push({
             name: event.name,
             value: `SKU: ${event.sku}\nDate: ${new Date(event.start).toUTCString().substring(5, 16)}`
@@ -241,4 +311,22 @@ async function findUpcoming(events, region) {
 
 function toTitleCase(str) {
     return str.replace(/\b(\w)(?!(\w{0,2}\b))/g, m => m.toUpperCase());
+}
+
+function parseTime(str) {
+    let constant = parseInt(str);
+    if (!constant) {
+        return;
+    }
+    let unit = str.match(/[a-zA-Z]+/)[0];
+
+    if (unit.startsWith("d")) {
+        return constant * 864e5;
+    }
+    else if (unit.startsWith("w")) {
+        return constant * 6048e5;
+    }
+    else if (unit.startsWith("m")) {
+        return constant * 2592e6;
+    }
 }
