@@ -113,6 +113,8 @@ client.on("message", message => {
 
         // Get upcoming events in the region
         if (command == "upcoming") {
+
+            // Parse region abbreviations, as well as allowing for a default region.
             let region = serverSettings.default_region;
             if (args[0]) {
                 if (args[0].length <= 3) {
@@ -122,20 +124,24 @@ client.on("message", message => {
                     region = args[0];
                 }
             }
-            let url = "https://api.vexdb.io/v1/get_events?status=current,future";
+
+            if (region == "") {
+                message.channel.send("Please specify a region e.g: Alberta, NY, texas.");
+                return;
+            }
+
+            let url = "https://api.vexdb.io/v1/get_events?season=tower takeover";
             if (regions.includes(region.toLowerCase())) {
                 url += "&region=" + region;
             }
             else {
                 url += "&country=" + region;
             }
-            console.log(url);
             fetch(url)
                 .then(res => res.json())
                 .then(data => findUpcoming(data.result, region))
                 .then(output => message.channel.send({ embed: output }))
-                .catch(e => {message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}`)});
-
+                .catch(e => { message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}`) });
         }
     }
 });
@@ -154,6 +160,8 @@ async function formatEvent(eventData) {
         embed.color = "#0d964c"
     }
 
+
+    //Check if the value is filled in the API to prevent empty/useless headers
     if (eventData.loc_venue) {
         embed.fields.push({
             name: "Venue",
@@ -205,21 +213,22 @@ async function formatEvent(eventData) {
 
 async function findUpcoming(events, region) {
     // Look 1 month in advance
-    let latestDate = new Date().setUTCHours(0,0,0,0) + 2592e6
+    let latestDate = new Date().setUTCHours(0, 0, 0, 0) + 2592e6
     let upcoming = [];
     for (const event of events) {
-        if(Date.parse(event.end) < latestDate) {
+        if (Date.parse(event.end) < latestDate) {
             upcoming.push(event);
         }
     }
+
+    // Sort by date, ascending so it displays descending down the page
+    upcoming = upcoming.sort((a,b) => Date.parse(a.start) - Date.parse(b.start));
 
     let embed = {
         title: "Upcoming events in " + toTitleCase(region),
         description: "Future events up to " + new Date(latestDate).toUTCString().substring(0, 16),
         fields: []
     }
-
-    console.log(events);
 
     for (const event of upcoming) {
         embed.fields.push({
