@@ -3,6 +3,7 @@
     "default_settings": {
         "prefix": "v!",
         "default_region": "",
-        "default_timespan": 2592000000
+        "default_timespan": 2592000000,
+        "max_embed_length": 10
     }
 }

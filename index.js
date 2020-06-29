@@ -107,8 +107,10 @@ client.on("message", message => {
             fetch("https://api.vexdb.io/v1/get_events?sku=" + args[0])
                 .then(res => res.json())
                 .then(data => formatEvent(data.result[0]))
-                .then(embed => message.channel.send({ embed: embed }))
-                .catch(e => message.channel.send(`No event found with the SKU ${args[0]}.`));
+                .then(embed => {
+                    message.channel.send({ embed: embed });
+                })
+                .catch(e => { message.channel.send(`No event found with the SKU ${args[0]}.`); console.log(e); });
         }
 
         // Get upcoming events in the region
@@ -117,11 +119,14 @@ client.on("message", message => {
             // Parse region abbreviations, as well as allowing for a default region.
             let region = serverSettings.default_region;
             if (args[0]) {
-                if (args[0].length <= 3) {
+                if (Object.keys(deabbreviation_dict).includes(args[0])) {
                     region = deabbreviation_dict[args[0]];
                 }
-                else {
+                else if (!parseInt(args[0])) {
                     region = args[0];
+                }
+                else {
+                    args[1] = args[0];
                 }
             }
 
@@ -130,7 +135,7 @@ client.on("message", message => {
                 return;
             }
 
-            let url = "https://api.vexdb.io/v1/get_events?season=tower takeover";
+            let url = "https://api.vexdb.io/v1/get_events?status=current,future";
             if (regions.includes(region.toLowerCase())) {
                 url += "&region=" + region;
             }
@@ -149,8 +154,16 @@ client.on("message", message => {
             fetch(url)
                 .then(res => res.json())
                 .then(data => getBetween(Date.now(), endDate, data.result, region))
-                .then(output => message.channel.send({ embed: output }))
-                .catch(e => { message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}.`) });
+                .then(embed => {
+                    if (embed.fields.length > serverSettings.max_embed_length) {
+                        message.channel.send("Too many events, DM'd");
+                        message.author.send({ embed: embed });
+                    }
+                    else {
+                        message.channel.send({ embed: embed });
+                    }
+                })
+                .catch(e => { message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}.`); console.log(e); });
         }
 
         // Get recent events in the region
@@ -159,11 +172,14 @@ client.on("message", message => {
             // Parse region abbreviations, as well as allowing for a default region.
             let region = serverSettings.default_region;
             if (args[0]) {
-                if (args[0].length <= 3) {
+                if (Object.keys(deabbreviation_dict).includes(args[0])) {
                     region = deabbreviation_dict[args[0]];
                 }
-                else {
+                else if (!parseInt(args[0])) {
                     region = args[0];
+                }
+                else {
+                    args[1] = args[0];
                 }
             }
 
@@ -172,7 +188,7 @@ client.on("message", message => {
                 return;
             }
 
-            let url = "https://api.vexdb.io/v1/get_events?season=tower takeover";
+            let url = "https://api.vexdb.io/v1/get_events?status=past,current";
             if (regions.includes(region.toLowerCase())) {
                 url += "&region=" + region;
             }
@@ -191,8 +207,16 @@ client.on("message", message => {
             fetch(url)
                 .then(res => res.json())
                 .then(data => getBetween(startDate, Date.now(), data.result, region, false))
-                .then(output => message.channel.send({ embed: output }))
-                .catch(e => { message.channel.send(`No recent events could be found in ${toTitleCase(region)}.`); console.log(e) });
+                .then(embed => {
+                    if (embed.fields.length > serverSettings.max_embed_length) {
+                        message.channel.send("Too many events, DM'd");
+                        message.author.send({ embed: embed });
+                    }
+                    else {
+                        message.channel.send({ embed: embed });
+                    }
+                })
+                .catch(e => { message.channel.send(`No recent events could be found in ${toTitleCase(region)}.`); console.log(e); });
         }
     }
 });
@@ -269,7 +293,6 @@ async function getBetween(from, to, events, region, descending = true) {
         if (Date.parse(event.end) < to && Date.parse(event.end) > from) {
             valid_events.push(event);
         }
-        console.log(Date.parse(event.end), from);
     }
     // Sort by date, ascending so it displays descending down the page
     if (descending) {
@@ -283,8 +306,6 @@ async function getBetween(from, to, events, region, descending = true) {
         fields: []
     }
 
-    console.log(from, to);
-
     if (Math.floor(from / 864e5) < Math.floor(Date.now() / 864e5)) {
         embed.title = "Recent events in " + toTitleCase(region);
         embed.description = "Past events since " + new Date(from).toUTCString().substring(0, 16);
@@ -293,8 +314,6 @@ async function getBetween(from, to, events, region, descending = true) {
         embed.title = "Upcoming events in " + toTitleCase(region);
         embed.description = "Future events up to " + new Date(to).toUTCString().substring(0, 16);
     }
-
-    console.log(valid_events);
 
     if (valid_events.length == 0) {
         return Promise.reject();
@@ -318,7 +337,7 @@ function parseTime(str) {
     if (!constant) {
         return;
     }
-    let unit = str.match(/[a-zA-Z]+/)[0];
+    let unit = str.match(/[a-zA-Z]+/)[0].toLowerCase();
 
     if (unit.startsWith("d")) {
         return constant * 864e5;
@@ -328,5 +347,8 @@ function parseTime(str) {
     }
     else if (unit.startsWith("m")) {
         return constant * 2592e6;
+    }
+    else if (unit.startsWith("y")) {
+        return constant * 31536e6;
     }
 }
