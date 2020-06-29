@@ -1,0 +1,10 @@
+{
+    "token":"YOUR.TOKEN.HERE",
+    "default_settings": {
+        "prefix": "v!",
+        "configurable_roles": ["Administrator"],
+        "default_event": "vrc",
+        "default_level": "",
+        "default_region": ""
+    }
+}
