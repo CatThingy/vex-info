@@ -1,0 +1,26 @@
+{
+  "name": "vex-info",
+  "version": "0.0.1",
+  "description": "Discord bot that fetches data from VexDB",
+  "main": "index.js",
+  "dependencies": {
+    "better-sqlite3": "^7.1.0",
+    "discord.js": "^12.2.0",
+    "enmap": "^5.3.1",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CatThingy/vex-info.git"
+  },
+  "author": "Andy Chen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CatThingy/vex-info/issues"
+  },
+  "homepage": "https://github.com/CatThingy/vex-info#readme"
+}
