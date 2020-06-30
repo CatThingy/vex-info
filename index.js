@@ -102,8 +102,78 @@ client.on("message", message => {
         const args = [...messageText.matchAll(argRegex)].map(v => v.slice(1).filter(n => n !== undefined)[0]);
         const command = args.shift();
 
+        // Configure the bot
+        if (command == "config") {
+            if (message.member.hasPermission("MANAGE_GUILD")) {
+                if (args[0] == "prefix") {
+                    if (args[1]) {
+                        settings.set(message.guild.id, args[1], "prefix");
+                        message.channel.send("Command prefix has been set to " + args[1]);
+                    }
+                    else {
+                        message.channel.send("The current prefix is " + serverSettings.prefix);
+                    }
+                }
+                else if (args[0] == "region") {
+                    if (args[1]) {
+                        if (Object.keys(deabbreviation_dict).includes(args[1])) {
+                            settings.set(message.guild.id, deabbreviation_dict[args[1]], "default_region");
+                        }
+                        else if (args[1] == "none") {
+                            settings.set(message.guild.id, "", "default_region");
+                            message.channel.send("The default region has been reset");
+                            return;
+                        }
+                        else {
+                            settings.set(message.guild.id, args[1], "default_region");
+                        }
+                        message.channel.send("The default region has been set to " + settings.get(message.guild.id, "default_region"));
+                    }
+                    else {
+                        if (serverSettings.defaultRegion) {
+                            message.channel.send("The default region is currently " + serverSettings.defaultRegion);
+                        }
+                        else {
+                            message.channel.send("There is no default region set.");
+                        }
+                    }
+                }
+                else if (args[0] == "timespan") {
+                    if (parseTime(args[1])) {
+                        settings.set(message.guild.id, parseTime(args[1]), "default_timespan");
+                        message.channel.send("The default timespan for time-based commands has been set to " + formatTime(settings.get(message.guild.id, "default_timespan")))
+                    }
+                    else if(args[1]) {
+                        message.channel.send("The default timespan should be formatted as [number][unit] without spaces, like '1m', '3w', '1y', etc.")
+                    }
+                    else{
+                        message.channel.send("The default timespan for time-based commands is " + formatTime(serverSettings.default_timespan));
+                    }
+                }
+                else if (args[0] == "event_count") {
+                    if (!isNaN(args[1])) {
+                        settings.set(message.guild.id, Math.min(25, ~~args[1]), "max_embed_length");
+                        message.channel.send("The maximum number of events listed has been set to " + Math.min(25, ~~args[1]));
+                    }
+                    else if (args[1]) {
+                        message.channel.send("The maximum number of events can only be a number.");
+                    }
+                    else {
+                        message.channel.send("The maximum number of events displayed is set to " + serverSettings.max_embed_length);
+                    }
+                }
+                else if (args[0] == "reset") {
+                    settings.set(message.guild.id, config.default_settings);
+                    message.channel.send("All settings have been reset to the defaults.");
+                }
+            }
+            else {
+                return;
+            }
+        }
+
         // Get event by SKU
-        if (command == "event") {
+        else if (command == "event") {
             fetch("https://api.vexdb.io/v1/get_events?sku=" + args[0])
                 .then(res => res.json())
                 .then(data => formatEvent(data.result[0]))
@@ -114,8 +184,7 @@ client.on("message", message => {
         }
 
         // Get upcoming events in the region
-        if (command == "upcoming") {
-
+        else if (command == "upcoming") {
             // Parse region abbreviations, as well as allowing for a default region.
             let region = serverSettings.default_region;
             if (args[0]) {
@@ -167,8 +236,7 @@ client.on("message", message => {
         }
 
         // Get recent events in the region
-        if (command == "recent") {
-
+        else if (command == "recent") {
             // Parse region abbreviations, as well as allowing for a default region.
             let region = serverSettings.default_region;
             if (args[0]) {
@@ -230,10 +298,10 @@ async function formatEvent(eventData) {
     }
 
     if (eventData.program === "VRC") {
-        embed.color = "#da262e"
+        embed.color = "#da262e";
     }
     else if (eventData.program === "VEXU") {
-        embed.color = "#0d964c"
+        embed.color = "#0d964c";
     }
 
 
@@ -283,7 +351,7 @@ async function formatEvent(eventData) {
     embed.fields.push({
         name: "Date",
         value: new Date(eventData.start).toUTCString().substring(0, 16)
-    })
+    });
     return embed;
 }
 
@@ -305,7 +373,7 @@ async function getBetween(from, to, events, region, descending = true) {
 
     let embed = {
         fields: []
-    }
+    };
 
     if (Math.floor(from / 864e5) < Math.floor(Date.now() / 864e5)) {
         embed.title = "Recent events in " + toTitleCase(region);
@@ -321,10 +389,16 @@ async function getBetween(from, to, events, region, descending = true) {
     }
 
     for (const event of valid_events) {
-        embed.fields.push({
-            name: event.name,
-            value: `[${event.sku}](https://robotevents.com/${event.sku})\nDate: ${new Date(event.start).toUTCString().substring(5, 16)}`
-        });
+        if (embed.fields.length < 25) {
+            embed.fields.push({
+                name: event.name,
+                value: `[${event.sku}](https://robotevents.com/${event.sku})\nDate: ${new Date(event.start).toUTCString().substring(5, 16)}`
+            });
+        }
+        else {
+            embed.footer = { text: "The number of events listed have been capped to 25 due to Discord API restrictions." }
+            break;
+        }
     }
     return embed;
 }
@@ -352,4 +426,20 @@ function parseTime(str) {
     else if (unit.startsWith("y")) {
         return constant * 31536e6;
     }
+}
+
+function formatTime(ms) {
+    if (ms < 6048e5) {
+        return ~~(ms / 864e5) + "d\n";
+    }
+    else if (ms < 2592e6) {
+        return ~~(ms / 6048e5) + "w\n";
+    }
+    else if (ms < 31536e6) {
+        return ~~(ms / 2592e6) + "m\n";
+    }
+    else {
+        return ~~(ms / 31536e6) + "y\n";
+    }
+
 }
