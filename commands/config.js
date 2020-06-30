@@ -1,4 +1,6 @@
 const settings = require("../settings.js");
+const config = require("../config.json");
+
 const { parseTime, formatTime, deabbreviation_dict } = require("../helpers.js");
 module.exports = {
     name: "config",

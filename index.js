@@ -46,7 +46,6 @@ client.on("message", message => {
         }
         catch (e) {
             console.error(e.stack);
-            return;
         }
     }
 });
