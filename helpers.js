@@ -15,7 +15,7 @@ const seasons = [
     "Clean Sweep"
 ];
 
-async function getBetween(from, to, events, region, descending = true) {
+function getBetween(from, to, events, region, descending = true) {
 
     let valid_events = [];
     for (const event of events) {

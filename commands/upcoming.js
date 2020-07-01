@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 module.exports = {
     name: "upcoming",
     description: "Get upcoming events in the region",
-    execute(message, args, serverSettings) {
+    async execute(message, args, serverSettings) {
         // Parse region abbreviations, as well as allowing for a default region.
         let region = serverSettings.default_region;
         if (args[0]) {
@@ -40,19 +40,21 @@ module.exports = {
             }
         }
 
-        fetch(url)
-            .then(res => res.json())
-            .then(data => getBetween(Date.now(), endDate, data.result, region))
-            .then(embed => {
-                if (embed.fields.length > serverSettings.max_embed_length) {
-                    message.channel.send("Too many events, DM'd");
-                    message.author.send({ embed: embed });
-                }
-                else {
-                    message.channel.send({ embed: embed });
-                }
-            })
-            .catch(e => { message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}.`); console.log(e); });
+        let data = await(fetch(url)
+            .then(res => res.json()));
 
+        if (data.result.length === 0) {
+            message.channel.send(`No upcoming events could be found in ${toTitleCase(region)}.`);
+            return;
+        }
+        let embed = getBetween(Date.now(), endDate, data.result, region, true);
+
+        if (embed.fields.length > serverSettings.max_events) {
+            message.channel.send("Too many events, DM'd");
+            message.author.send({ embed: embed });
+        }
+        else {
+            message.channel.send({ embed: embed });
+        }
     }
 }
