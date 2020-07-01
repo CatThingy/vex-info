@@ -54,14 +54,26 @@ module.exports = {
             }
             else if (args[0] == "event_count") {
                 if (!isNaN(args[1])) {
-                    settings.set(message.guild.id, Math.min(25, ~~args[1]), "max_embed_length");
+                    settings.set(message.guild.id, Math.min(25, ~~args[1]), "max_events");
                     message.channel.send("The maximum number of events listed has been set to " + Math.min(25, ~~args[1]));
                 }
                 else if (args[1]) {
                     message.channel.send("The maximum number of events can only be a number.");
                 }
                 else {
-                    message.channel.send("The maximum number of events displayed is set to " + serverSettings.max_embed_length);
+                    message.channel.send("The maximum number of events listed is set to " + serverSettings.max_events);
+                }
+            }
+            else if (args[0] == "award_count") {
+                if (!isNaN(args[1])) {
+                    settings.set(message.guild.id, Math.min(100, ~~args[1]), "max_awards");
+                    message.channel.send("The maximum number of awards listed has been set to " + Math.min(100, ~~args[1]));
+                }
+                else if (args[1]) {
+                    message.channel.send("The maximum number of awards can only be a number.");
+                }
+                else {
+                    message.channel.send("The maximum number of awards listed is set to " + serverSettings.max_events);
                 }
             }
             else if (args[0] == "reset") {

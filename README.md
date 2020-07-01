@@ -20,6 +20,8 @@ The `timespan` setting is used as the default timespan used for the `recent` and
 
 The `max_events` setting dictates how many events the `recent` or `upcoming` commands should display in a channel. The value for `max_events` should be an integer, with a maximum of 25 due to limitations of Discord embeds The default value is 10.
 
+The `max_awards` setting dictates how many awards the `awards` command show display in a channel. The value for `max_awards` should be an integer. Note that there is another limit based on character count inherent in the Discord API. The default value is 15.
+
 ---
 ### `event`
 Usage: `event [SKU]`  
@@ -40,3 +42,9 @@ Displays basic info about past events in the specified region, looking back by t
 
 The value for `region` can be any country, US state, or Canadian province. For US states and Canadian provinces, standard two-letter abbreviations can be used. If `region` is not set, the server's `region` setting is used.  
 The value for `timespan` should be given in the format [number][unit] with no spaces in between e.g. 1y for 1 year, 3m for 3 months. If `timestamp` is not set, the server's `timestamp` setting is used.
+
+---
+### `awards`
+Usage: `awards [SKU | team]`
+
+Shows all awards awarded at an event if the SKU is given, or shows all awards received by a team if their team number is given.

@@ -10,7 +10,7 @@ module.exports = {
             .then(embed => {
                 message.channel.send({ embed: embed });
             })
-            .catch(e => { message.channel.send(`No event found with the SKU ${args[0]}.`); console.log(e); });
+            .catch(e => { message.channel.send(`No event found with the SKU ${args[0].toUpperCase()}.`); console.log(e); });
     }
 }
 

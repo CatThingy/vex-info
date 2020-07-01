@@ -11,7 +11,7 @@ module.exports = {
                 url: "https://github.com/CatThingy/vex-info#commands",
                 fields: [
                     {
-                        name: "config [setting|reset]",
+                        name: "config [setting|reset] [value]",
                         value: "Gets or sets the configuration of the bot. Can only be used by members who have permission to manage the server.",
                     },
                     {
@@ -25,6 +25,10 @@ module.exports = {
                     {
                         name: "recent [region?] [timespan?]",
                         value: "Displays basic info about past events in the specified region, looking back by the value of `timespan`.",
+                    },
+                    {
+                        name: "awards [SKU | team]",
+                        value: "Shows all awards awarded at the event with the given SKU or shows all awards received by the specified team."
                     }
                 ],
                 footer: {

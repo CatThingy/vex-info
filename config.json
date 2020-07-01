@@ -4,6 +4,7 @@
         "prefix": "v!",
         "default_region": "",
         "default_timespan": 2592000000,
-        "max_embed_length": 10
+        "max_events": 10,
+        "max_awards": 15
     }
 }

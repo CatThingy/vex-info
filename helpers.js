@@ -1,49 +1,19 @@
-deabbreviation_dict = { "ab": "Alberta", "ak": "Alaska", "al": "Alabama", "ar": "Arkansas", "az": "Arizona", "bc": "British Columbia", "ca": "California", "co": "Colorado", "ct": "Connecticut", "dc": "District of Columbia", "de": "Delaware", "fl": "Florida", "ga": "Georgia", "hi": "Hawaii", "ia": "Iowa", "id": "Idaho", "il": "Illinois", "in": "Indiana", "ks": "Kansas", "ky": "Kentucky", "la": "Louisiana", "ma": "Massachusetts", "mb": "Manitoba", "md": "Maryland", "me": "Maine", "mi": "Michigan", "mn": "Minnesota", "mo": "Missouri", "ms": "Mississippi", "mt": "Montana", "nb": "New Brunswick", "nc": "North Carolina", "nd": "North Dakota", "ne": "Nebraska", "nf": "Newfoundland", "nh": "New Hampshire", "nj": "New Jersey", "nm": "New Mexico", "ns": "Nova Scotia", "nt": "Northwest Territory", "nu": "Nunavut", "nv": "Nevada", "ny": "New York", "oh": "Ohio", "ok": "Oklahoma", "on": "Ontario", "or": "Oregon", "pa": "Pennsylvania", "pe": "Prince Edward Island", "pei": "Prince Edward Island", "qc": "Quebec", "ri": "Rhode Island", "sc": "South Carolina", "sd": "South Dakota", "sk": "Saskatchewan", "tn": "Tennessee", "tx": "Texas", "ut": "Utah", "va": "Virginia", "vt": "Vermont", "wa": "Washington", "wi": "Wisconsin", "wv": "West Virginia", "wy": "Wyoming", "yt": "Yukon" };
-regions = Object.values(deabbreviation_dict).join(",").toLowerCase()
-
-async function formatEvent(eventData) {
-    let embed = {
-        title: eventData.name,
-        description: eventData.season,
-        url: `https://robotevents.com/${eventData.sku}.html`,
-        fields: []
-    }
-
-    if (eventData.program === "VRC") {
-        embed.color = "#da262e";
-    }
-    else if (eventData.program === "VEXU") {
-        embed.color = "#0d964c";
-    }
-
-
-    //Check if the value is filled in the API to prevent empty/useless headers
-    if (eventData.loc_venue) {
-        embed.fields.push({
-            name: "Venue",
-            value: eventData.loc_venue,
-            inline: true
-        });
-    }
-    if (eventData.loc_address1) {
-        embed.fields.push({
-            name: "Address",
-            value: eventData.loc_address1,
-            inline: true
-        });
-    }
-    if (eventData.loc_address2) {
-        embed.fields.push({
-            name: "Address",
-            value: eventData.loc_address2,
-            inline: true
-        });
-    }
-    //Separator
-    embed.fields.push({
-        name: "\u200b",
-        value: "\u200b"
-    });
+const deabbreviation_dict = { "ab": "Alberta", "ak": "Alaska", "al": "Alabama", "ar": "Arkansas", "az": "Arizona", "bc": "British Columbia", "ca": "California", "co": "Colorado", "ct": "Connecticut", "dc": "District of Columbia", "de": "Delaware", "fl": "Florida", "ga": "Georgia", "hi": "Hawaii", "ia": "Iowa", "id": "Idaho", "il": "Illinois", "in": "Indiana", "ks": "Kansas", "ky": "Kentucky", "la": "Louisiana", "ma": "Massachusetts", "mb": "Manitoba", "md": "Maryland", "me": "Maine", "mi": "Michigan", "mn": "Minnesota", "mo": "Missouri", "ms": "Mississippi", "mt": "Montana", "nb": "New Brunswick", "nc": "North Carolina", "nd": "North Dakota", "ne": "Nebraska", "nf": "Newfoundland", "nh": "New Hampshire", "nj": "New Jersey", "nm": "New Mexico", "ns": "Nova Scotia", "nt": "Northwest Territory", "nu": "Nunavut", "nv": "Nevada", "ny": "New York", "oh": "Ohio", "ok": "Oklahoma", "on": "Ontario", "or": "Oregon", "pa": "Pennsylvania", "pe": "Prince Edward Island", "pei": "Prince Edward Island", "qc": "Quebec", "ri": "Rhode Island", "sc": "South Carolina", "sd": "South Dakota", "sk": "Saskatchewan", "tn": "Tennessee", "tx": "Texas", "ut": "Utah", "va": "Virginia", "vt": "Vermont", "wa": "Washington", "wi": "Wisconsin", "wv": "West Virginia", "wy": "Wyoming", "yt": "Yukon" };
+const regions = Object.values(deabbreviation_dict).join(",").toLowerCase();
+const seasons = [
+    "Change Up",
+    "Tower Takeover",
+    "Turning Point",
+    "In the Zone",
+    "Starstruck",
+    "Nothing But Net",
+    "Skyrise",
+    "Toss Up",
+    "Sack Attack",
+    "Gateway",
+    "Round Up",
+    "Clean Sweep"
+];
 
 async function getBetween(from, to, events, region, descending = true) {
 
@@ -137,7 +107,7 @@ function formatTime(ms) {
 module.exports = {
     deabbreviation_dict: deabbreviation_dict,
     regions: regions,
-    formatEvent: formatEvent,
+    seasons: seasons,
     getBetween: getBetween,
     toTitleCase: toTitleCase,
     parseTime: parseTime,
