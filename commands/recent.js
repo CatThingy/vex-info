@@ -39,23 +39,23 @@ module.exports = {
                 startDate = Date.now() - parseTime(args[1]);
             }
         }
+        const response = await message.channel.send("Getting events...")
 
         let data = await (fetch(url)
             .then(res => res.json()));
-            
+
         if (data.result.length === 0) {
-            message.channel.send(`No recent events could be found in ${toTitleCase(region)}.`);
+            response.edit(`No recent events could be found in ${toTitleCase(region)}.`);
             return;
         }
         let embed = getBetween(startDate, Date.now(), data.result, region, false);
 
         if (embed.fields.length > serverSettings.max_events) {
-            message.channel.send("Too many events, DM'd");
+            response.edit("Too many events, DM'd");
             message.author.send({ embed: embed });
         }
         else {
-            message.channel.send({ embed: embed });
+            response.edit({ content: "", embed: embed });
         }
-
     }
 }
