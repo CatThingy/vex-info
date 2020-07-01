@@ -45,28 +45,6 @@ async function formatEvent(eventData) {
         value: "\u200b"
     });
 
-    if (eventData.loc_city) {
-        embed.fields.push({
-            name: "City",
-            value: eventData.loc_city,
-            inline: true
-        });
-    }
-    if (eventData.loc_region) {
-        embed.fields.push({
-            name: "Region",
-            value: eventData.loc_region,
-            inline: true
-        });
-    }
-
-    embed.fields.push({
-        name: "Date",
-        value: new Date(eventData.start).toUTCString().substring(0, 16)
-    });
-    return embed;
-}
-
 async function getBetween(from, to, events, region, descending = true) {
 
     let valid_events = [];
