@@ -3,8 +3,15 @@
     "default_settings": {
         "prefix": "v!",
         "default_region": "",
-        "default_timespan": 2592000000,
+        "default_timespan": 2592e6,
         "max_events": 10,
         "max_awards": 15
+    },
+    "dm_settings": {
+        "prefix": "",
+        "default_region": "",
+        "default_timespan": 2592e6,
+        "max_events": 25,
+        "max_awards": 100
     }
 }

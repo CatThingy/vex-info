@@ -6,6 +6,9 @@ module.exports = {
     name: "config",
     description: "Configure the bot",
     execute(message, args, serverSettings) {
+        if (!message.guild) {
+            return;
+        }
         if (message.member.hasPermission("MANAGE_GUILD")) {
             if (args[0] == "prefix") {
                 if (args[1]) {

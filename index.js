@@ -27,10 +27,10 @@ client.on("ready", () => {
 });
 
 client.on("message", message => {
-    if (message.author.bot || !message.guild)
+    if (message.author.bot)
         return;
 
-    const serverSettings = settings.ensure(message.guild.id, config.default_settings);
+    const serverSettings = message.guild ? settings.ensure(message.guild.id, config.default_settings) : config.dm_settings;
 
     let messageText = message.content.toLowerCase();
     if (messageText.startsWith(serverSettings.prefix)) {
