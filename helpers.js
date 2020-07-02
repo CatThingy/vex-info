@@ -64,7 +64,7 @@ function getBetween(from, to, events, region, descending = true) {
 }
 
 function toTitleCase(str) {
-    return str.replace(/\b(\w)(?!(\w{0,2}\b))/g, m => m.toUpperCase());
+    return str.toLowerCase().replace(/\b(\w)(?!(\w{0,2}\b))|^(\w)/g, m => m.toUpperCase());
 }
 
 function parseTime(str) {

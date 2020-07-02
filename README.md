@@ -48,3 +48,16 @@ The value for `timespan` should be given in the format [number][unit] with no sp
 Usage: `awards [SKU | team]`
 
 Shows all awards awarded at an event if the SKU is given, or shows all awards received by a team if their team number is given.
+
+---
+### `stats`
+Usage: `stats [team] [season?]`
+
+Show competition statistics about the given team in the given season. If no season is specified, the current competitive season is used. 
+
+The stats shown are OPR, DPR, CCWM, W-L-T, and Auton Win%.  
+OPR, or offensive power rating, shows the point-scoring capabilities of a given team. Higher is better.  
+DPR, or defensive power rating, shows the defensive capabilitiess of a given team. Lower is better.  
+CCWM is the combined contribution to the winning margin. It can be calculated by subtracting DPR from OPR. Higher is better.  
+W-L-T shows wins, losses, and ties, in that order.
+Auton Win% is the percentage of matches where a given team's alliance won the autonomous period. If a tie occurs, it counts as 0.5 wins for this statistic.

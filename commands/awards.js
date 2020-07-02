@@ -13,13 +13,15 @@ module.exports = {
         // Event SKU given
         if (args[0].match(/[a-zA-Z]{2}-[a-zA-Z]{3}-\d{2}-\d{4}/)) {
             // Verify existence of event and get name of event.
-            await fetch("https://api.vexdb.io/v1/get_events?sku=" + args[0])
-                .then(res => res.json())
-                .then(data => {
-                    embed.title = data.result[0].name + " Awards";
-                    embed.url = "https://robotevents.com/" + args[0] + "#awards";
-                })
-                .catch(e => { message.channel.send(`No event found with the SKU ${args[0].toUpperCase()}.`); console.log(e); errored = true });
+            let eventInfo = await fetch("https://api.vexdb.io/v1/get_events?sku=" + args[0])
+                .then(res => res.json());
+
+            if (eventInfo.size == 0) {
+                message.channel.send(`No event found with the SKU ${args[0].toUpperCase()}.`);
+                return;
+            }
+            embed.title = eventInfo.result[0].name + " Awards";
+            embed.url = "https://robotevents.com/" + args[0] + "#awards";
 
             if (errored) {
                 return;
@@ -41,16 +43,13 @@ module.exports = {
         // Team ID given
         else {
             // Verify existence of team
-            await fetch("https://api.vexdb.io/v1/get_teams?team=" + args[0])
-                .then(res => res.json())
-                .then(data => {
-                    embed.title = data.result[0].number;
-                })
-                .catch(e => { message.channel.send(`No team found with the number ${args[0].toUpperCase()}.`); console.log(e); errored == true });
-
-            if (errored) {
+            let teamInfo = await fetch("https://api.vexdb.io/v1/get_teams?team=" + args[0])
+                .then(res => res.json());
+            if (teamInfo.size == 0) {
+                message.channel.send(`No team found with the number ${args[0].toUpperCase()}.`);
                 return;
             }
+            embed.title = args[0].toUpperCase();
             let totalAwards = 0;
             response = await message.channel.send("Getting award data...");
             // Get awards for each season

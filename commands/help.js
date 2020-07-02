@@ -29,6 +29,10 @@ module.exports = {
                     {
                         name: "awards [SKU | team]",
                         value: "Shows all awards awarded at the event with the given SKU or shows all awards received by the specified team."
+                    },
+                    {
+                        name: "stats [team] [season?]",
+                        value: "Show competition statistics about the given team in the given season."
                     }
                 ],
                 footer: {
