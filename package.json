@@ -7,7 +7,7 @@
     "better-sqlite3": "^7.1.0",
     "discord.js": "^12.2.0",
     "enmap": "^5.3.1",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {},
   "scripts": {
